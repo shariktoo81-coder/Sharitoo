@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#1b120d"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sharitoo — лаунчер</title>
+<style>
+:root{--bg:#1b120d;--bg2:#2a1a12;--card:#2e1f17;--line:#4a3426;--cream:#f3e4cf;--tan:#d9b99b;--brown:#8b5a43;--green:#b7d98a;--blue:#2aabee;--amber:#e9b25a;--muted:#a58a74;--ink:#1b120d;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6ecdd;--bg2:#ead9c2;--card:#fff6e8;--line:#d9c0a3;--cream:#2b1a10;--tan:#6b4630;--muted:#7d604a;--ink:#fff6e8;color-scheme:light}}
+:root[data-theme="dark"]{color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(120% 60% at 50% 0%,var(--bg2),var(--bg));color:var(--cream);font:16px/1.4 "Helvetica Neue",Arial,system-ui,sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;padding:16px 18px 8px}
+.logo{width:48px;height:48px;border-radius:14px;cursor:pointer;border:0;background:none;padding:0;transition:transform .2s}
+.logo:active{transform:rotate(-8deg) scale(.92)}
+h1{font-size:28px;letter-spacing:-.04em;font-weight:800;line-height:1}
+.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.ver{margin-left:auto;font-size:12px;color:var(--muted)}
+main{flex:1;overflow-y:auto;padding:8px 18px 16px}
+section{display:none}section.on{display:block}
+h2{font-size:30px;letter-spacing:-.04em;font-weight:800;line-height:1.05;margin:8px 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.t{font-weight:700}.d{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--tan)}
+.pill.ok{color:var(--green)}.pill.wip{color:var(--amber)}
+.play{width:100%;border:0;border-radius:20px;padding:20px;font:800 24px/1 inherit;font-family:inherit;letter-spacing:-.03em;background:var(--cream);color:var(--ink);cursor:pointer;position:relative;overflow:hidden;margin:6px 0 14px}
+.play:active{transform:scale(.98)}
+.play .bar{position:absolute;inset:0 auto 0 0;width:0;background:var(--green);opacity:.55}
+.play span{position:relative}
+.tg{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--cream);background:linear-gradient(90deg,#173a50,var(--card));border:1px solid #28607f;border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.tg svg{flex:none}
+.sw{width:50px;height:30px;border-radius:99px;background:var(--line);border:0;position:relative;cursor:pointer;flex:none;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--cream);transition:transform .2s}
+.sw[aria-checked="true"]{background:#6f9a45}.sw[aria-checked="true"]::after{transform:translateX(20px)}
+.ico{width:38px;height:38px;border-radius:11px;background:var(--bg2);display:grid;place-items:center;font-size:18px;flex:none}
+.btn{border:1px solid var(--line);background:var(--bg2);color:var(--cream);font:700 14px inherit;font-family:inherit;border-radius:12px;padding:9px 14px;cursor:pointer}
+.btn:active{transform:scale(.96)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;background:var(--bg);padding:8px;border-radius:14px;touch-action:none}
+.grid i{aspect-ratio:1;border-radius:4px;background:var(--bg2);display:block}
+.pal{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.pal button{width:42px;height:42px;border-radius:12px;border:3px solid transparent;cursor:pointer}
+.pal button[aria-pressed="true"]{border-color:var(--cream)}
+.news{border-left:4px solid var(--brown);border-radius:6px 18px 18px 6px}
+nav{display:flex;border-top:1px solid var(--line);background:var(--bg);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;border:0;color:var(--muted);font:700 12px inherit;font-family:inherit;padding:8px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px}
+nav button b{font-size:20px;font-weight:400}
+nav button[aria-selected="true"]{color:var(--cream);background:var(--card)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--cream);color:var(--ink);padding:10px 16px;border-radius:14px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.stage{position:relative;height:340px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(#5aa9e6 0,#bfe3f7 62%,#7fbf4d 62%,#5a9a3a 100%);touch-action:none}
+.stage .o{position:absolute;font-size:38px;line-height:1;cursor:grab;user-select:none;-webkit-user-select:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 2px rgba(0,0,0,.35))}
+.stage .o.sel{outline:3px dashed var(--cream);outline-offset:4px;border-radius:8px}
+.pal button.pr{width:auto;height:auto;padding:8px 12px;background:var(--card);border:1px solid var(--line);color:var(--cream);font:700 14px inherit;font-family:inherit}
+</style>
+</head>
+<body>
+<header>
+  <button class="logo" id="logo" aria-label="Медведь">
+    <svg viewBox="0 0 48 48" width="48" height="48"><rect width="48" height="48" rx="14" fill="#f3e4cf"/><circle cx="8" cy="9" r="8" fill="#8b5a43"/><circle cx="42" cy="38" r="6" fill="#8b5a43"/><circle cx="14" cy="14" r="5" fill="#8b5a43"/><circle cx="34" cy="14" r="5" fill="#8b5a43"/><rect x="11" y="13" width="26" height="24" rx="11" fill="#8b5a43"/><rect x="18" y="24" width="12" height="9" rx="4.5" fill="#f3e4cf"/><circle cx="24" cy="27" r="2.2" fill="#5a3a2a"/><circle cx="19" cy="21" r="1.6" fill="#f3e4cf"/><circle cx="29" cy="21" r="1.6" fill="#f3e4cf"/></svg>
+  </button>
+  <div><h1>Sharitoo</h1><div class="sub">Мод-лаунчер для Super Bear Adventure</div></div>
+  <div class="ver">Android</div>
+</header>
+
+<main>
+<section id="play" class="on">
+  <button class="play" id="go"><div class="bar" id="bar"></div><span id="gotxt">Играть</span></button>
+  <div class="card row">
+    <div class="ico">📦</div>
+    <div class="grow"><div class="t">DLC</div><div class="d" id="dlcd">Теперь будет в игре</div></div>
+    <button class="btn" id="dlc">Скачать</button>
+  </div>
+  <div class="card row" id="tospawn" style="cursor:pointer"><div class="ico">✨</div><div class="grow"><div class="t">Спавн пресетов</div><div class="d">Создавай объекты и двигай их</div></div><span class="pill ok">Новое</span></div>
+  <div class="card row">
+    <div class="ico">🧩</div>
+    <div class="grow"><div class="t">Рабочие моды</div><div class="d" id="modsum">—</div></div>
+    <span class="pill ok">Работают</span>
+  </div>
+  <div class="card row">
+    <div class="ico">🗺️</div>
+    <div class="grow"><div class="t">Редактор карт</div><div class="d">Рисуй свои уровни</div></div>
+    <span class="pill wip">В разработке</span>
+  </div>
+</section>
+
+<section id="mods">
+  <h2>Рабочие моды</h2>
+  <div id="modlist"></div>
+</section>
+
+<section id="spawn">
+  <h2>Спавн пресетов</h2>
+  <div class="pal" id="presets"></div>
+  <div class="stage" id="stage"><div class="gnd"></div></div>
+  <div class="row" style="margin-top:12px;flex-wrap:wrap">
+    <button class="btn" id="del">Удалить выбранный</button>
+    <button class="btn" id="sclr">Очистить</button>
+    <button class="btn" id="ssave">Сохранить</button>
+    <button class="btn" id="sjson">Копировать JSON</button>
+  </div>
+  <p class="d" style="margin-top:10px">Нажми на пресет, чтобы создать. Перетаскивай пальцем. Объектов: <span id="cnt">0</span></p>
+</section>
+
+<section id="editor">
+  <h2>Редактор карт</h2>
+  <span class="pill wip">В разработке</span>
+  <div class="pal" id="pal"></div>
+  <div class="grid" id="grid"></div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn" id="clr">Очистить</button>
+    <button class="btn" id="rnd">Случайная карта</button>
+    <button class="btn" id="save">Сохранить</button>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="play"><b>▶</b>Играть</button>
+  <button role="tab" aria-selected="false" data-t="mods"><b>🧩</b>Моды</button>
+  <button role="tab" aria-selected="false" data-t="spawn"><b>✨</b>Спавн</button>
+  <button role="tab" aria-selected="false" data-t="editor"><b>🗺️</b>Карты</button>
+</nav>
+
+<script>
+const $=s=>document.querySelector(s);
+function store(k,v){try{if(v===undefined){const r=localStorage.getItem(k);return r?JSON.parse(r):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+
+// вкладки
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+  $('main').scrollTop=0;
+});
+
+// моды
+const MODS=[['✦','Больше монет','Награда за уровень ×2'],['◉','Мини-карта','Показывает карту в углу'],['↗','Быстрый бег','Скорость +25%'],['🐻','Медвежий скин','Персонаж в шкуре медведя'],['☀','Всегда день','Без смены времени суток']];
+let mods=store('mods')||MODS.map((_,i)=>i<3);
+function drawMods(){
+  $('#modlist').innerHTML=MODS.map((m,i)=>`<div class="card row"><div class="ico">${m[0]}</div><div class="grow"><div class="t">${m[1]}</div><div class="d">${m[2]}</div></div><button class="sw" role="switch" aria-checked="${mods[i]}" aria-label="${m[1]}" data-i="${i}"></button></div>`).join('');
+  $('#modsum').textContent='Включено: '+mods.filter(Boolean).length+' из '+MODS.length;
+  document.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{const i=+s.dataset.i;mods[i]=!mods[i];store('mods',mods);drawMods()});
+}
+drawMods();
+
+// DLC
+let dlc=!!store('dlc');
+function drawDlc(){$('#dlc').textContent=dlc?'Установлено':'Скачать';$('#dlc').disabled=dlc;$('#dlcd').textContent=dlc?'Готово к игре':'Теперь будет в игре'}
+$('#dlc').onclick=()=>{let p=0;const b=$('#dlc');b.disabled=true;const iv=setInterval(()=>{p+=10;b.textContent=p+'%';if(p>=100){clearInterval(iv);dlc=true;store('dlc',true);drawDlc();toast('DLC установлен 📦')}},180)};
+drawDlc();
+
+// запуск
+const msgs=['Будим медведя…','Греем мёд…','Включаем моды…','Рисуем карту…','Почти готово…'];
+let busy=false;
+$('#go').onclick=()=>{if(busy)return;busy=true;let p=0;const bar=$('#bar'),tx=$('#gotxt');
+  const iv=setInterval(()=>{p+=4;bar.style.width=p+'%';tx.textContent=msgs[Math.min(4,Math.floor(p/20))];
+    if(p>=100){clearInterval(iv);tx.textContent='Играть';bar.style.width='0';busy=false;if(window.Android){toast(Android.launchGame()==='ok'?'Запуск игры…':'Игра не найдена на телефоне')}else{toast('Демо: открой в Android-приложении')}}},90)};
+
+
+// медведь-пасхалка
+let clicks=0;$('#logo').onclick=()=>{clicks++;if(clicks%5===0)toast('Грррр! 🐻');else if(clicks===1)toast('Нажми ещё…')};
+
+// редактор карт
+const COL=[['Трава','#7fbf4d'],['Земля','#8b5a43'],['Вода','#4aa8e8'],['Камень','#8d8d8d'],['Ластик','#2a1a12']];
+const W=12,H=8;let cur=0,cells=store('map')||Array(W*H).fill(4);
+$('#pal').innerHTML=COL.map((c,i)=>`<button style="background:${c[1]}" aria-label="${c[0]}" aria-pressed="${i===cur}" data-i="${i}"></button>`).join('');
+document.querySelectorAll('#pal button').forEach(b=>b.onclick=()=>{cur=+b.dataset.i;document.querySelectorAll('#pal button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+const g=$('#grid');g.innerHTML=Array.from({length:W*H},(_,i)=>`<i data-i="${i}"></i>`).join('');
+const els=[...g.children];
+function paint(){els.forEach((e,i)=>e.style.background=COL[cells[i]][1])}
+function put(e){const t=document.elementFromPoint(e.clientX,e.clientY);if(t&&t.parentNode===g){cells[+t.dataset.i]=cur;t.style.background=COL[cur][1]}}
+let down=false;g.onpointerdown=e=>{down=true;put(e)};g.onpointermove=e=>{if(down)put(e)};
+addEventListener('pointerup',()=>down=false);
+$('#clr').onclick=()=>{cells.fill(4);paint()};
+$('#rnd').onclick=()=>{cells=cells.map((_,i)=>{const y=Math.floor(i/W);return y<3?0:y<5?(Math.random()<.2?2:1):(Math.random()<.3?3:1)});paint()};
+$('#save').onclick=()=>{store('map',cells);toast('Карта сохранена в этом браузере')};
+paint();
+
+// спавн пресетов
+const PR=[['🪙','Монета'],['📦','Ящик'],['🌳','Дерево'],['🛢️','Бочка'],['🦀','Краб'],['🚩','Чекпоинт'],['🍯','Мёд'],['🐻','Медведь']];
+$('#presets').innerHTML=PR.map((p,i)=>`<button class="pr" data-i="${i}">${p[0]} ${p[1]}</button>`).join('');
+const st=$('#stage');let objs=store('scene')||[],selId=null,seq=Date.now();
+function redraw(){st.querySelectorAll('.o').forEach(e=>e.remove());
+  objs.forEach(o=>{const e=document.createElement('div');e.className='o'+(o.id===selId?' sel':'');e.textContent=o.e;e.style.left=o.x+'%';e.style.top=o.y+'%';e.dataset.id=o.id;st.appendChild(e)});
+  $('#cnt').textContent=objs.length}
+document.querySelectorAll('.pr').forEach(b=>b.onclick=()=>{const p=PR[+b.dataset.i];const o={id:++seq,e:p[0],n:p[1],x:50+(Math.random()*20-10),y:45+(Math.random()*20-10)};objs.push(o);selId=o.id;redraw()});
+let drag=null;
+st.onpointerdown=e=>{const t=e.target.closest('.o');if(!t){selId=null;redraw();return}selId=+t.dataset.id;drag=objs.find(o=>o.id===selId);objs=objs.filter(o=>o!==drag).concat(drag);redraw();st.setPointerCapture(e.pointerId)};
+st.onpointermove=e=>{if(!drag)return;const r=st.getBoundingClientRect();drag.x=Math.max(3,Math.min(97,(e.clientX-r.left)/r.width*100));drag.y=Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100));const el=st.querySelector('.o.sel');if(el){el.style.left=drag.x+'%';el.style.top=drag.y+'%'}};
+st.onpointerup=st.onpointercancel=()=>{drag=null};
+$('#del').onclick=()=>{if(selId===null)return toast('Сначала выбери объект');objs=objs.filter(o=>o.id!==selId);selId=null;redraw()};
+$('#sclr').onclick=()=>{objs=[];selId=null;redraw()};
+$('#ssave').onclick=()=>{store('scene',objs);toast('Сцена сохранена')};
+$('#sjson').onclick=()=>{const j=JSON.stringify(objs.map(o=>({preset:o.n,x:+o.x.toFixed(1),y:+o.y.toFixed(1)})),null,1);
+  (window.Android?(Android.copy(j),Promise.resolve()):navigator.clipboard?navigator.clipboard.writeText(j):Promise.reject()).then(()=>toast('JSON скопирован'),()=>toast('Не удалось скопировать'))};
+$('#tospawn').onclick=()=>document.querySelector('nav [data-t="spawn"]').click();
+redraw();
+</script>
+</body>
+</html>
