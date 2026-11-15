@@ -10,6 +10,30 @@ jobs:
       - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.9 }
+      - name: Разложить файлы по папкам
+        run: |
+          mkdir -p app/src/main/java/com/sharitoo/launcher app/src/main/assets app/src/main/res/values app/src/main/res/drawable
+          cp AndroidManifest.xml app/src/main/
+          cp MainActivity.kt app/src/main/java/com/sharitoo/launcher/
+          cp index.html app/src/main/assets/
+          cp themes.xml app/src/main/res/values/
+          cp ic_launcher.xml app/src/main/res/drawable/
+          cat > build.gradle.kts <<'EOF'
+          plugins {
+              id("com.android.application") version "8.5.2" apply false
+              id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+          }
+          EOF
+          cat > app/build.gradle.kts <<'EOF'
+          plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
+          android {
+              namespace = "com.sharitoo.launcher"
+              compileSdk = 34
+              defaultConfig { applicationId = "com.sharitoo.launcher"; minSdk = 24; targetSdk = 34; versionCode = 1; versionName = "1.0" }
+              compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+              kotlinOptions { jvmTarget = "17" }
+          }
+          EOF
       - run: gradle assembleDebug
       - uses: actions/upload-artifact@v4
         with: { name: Sharitoo-apk, path: app/build/outputs/apk/debug/app-debug.apk }
